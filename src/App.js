@@ -1,24 +1,21 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Login from './page/login/index.js'
+import Upload from './page/upload/index.js'
+import { HashRouter, Switch, Route } from 'react-router-dom'
+import './static/css/App.css';
+import './static/css/normalize.css'
+import 'antd-mobile/dist/antd-mobile.css'
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <HashRouter>
+        <Switch>
+          <Route path='/' exact component={Login} />
+          <Route path='/login' exact component={Login} />
+          <Route path='/upload' exact component={Upload} />
+        </Switch>
+      </HashRouter>
     </div>
   );
 }

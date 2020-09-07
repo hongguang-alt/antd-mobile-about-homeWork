@@ -1,0 +1,15 @@
+#root {
+  height: 100vh;
+}
+
+.App {
+  height: 100%;
+  overflow: hidden;
+}
+
+.login {
+  background: linear-gradient(to bottom, rgb(16, 142, 233), white);
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
