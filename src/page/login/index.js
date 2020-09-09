@@ -50,7 +50,7 @@ const Login = (props) => {
             //错误处理
             if (err) {
                 let errList = []
-                Object.keys(err).map(item => {
+                Object.keys(err).forEach(item => {
                     const { errors } = err[item]
                     errList = [...errList, ...errors]
                 })
