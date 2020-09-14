@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Card, WingBlank, WhiteSpace, Toast, Button, Icon, NavBar } from 'antd-mobile';
-import { getFileName, upload } from '../../../axios/api'
+import { getFileName, upload, getUploadName } from '../../../axios/api'
 import Upload from 'rc-upload'
 
 
@@ -17,10 +17,13 @@ const UploadWork = () => {
     const [fileName, setFileName] = useState({})
     const [fileList, setFileList] = useState([])
     const [uploading, setUploading] = useState(false)
+    const [uploadName, setUploadName] = useState('')
+
 
     //初始化数据
     useEffect(() => {
         toGetFileName()
+        toUploadName()
     }, [])
 
     //获取文件名以及格式
@@ -79,7 +82,20 @@ const UploadWork = () => {
         toUpload(formData)
     }
 
-
+    //获取上传文件名称的接口
+    const toUploadName = async () => {
+        try {
+            let res = await getUploadName()
+            if (res.status === '200') {
+                const { data } = res
+                setUploadName(data.fileName)
+            } else {
+                Toast.error('请求上传文件名称接口失败')
+            }
+        } catch (e) {
+            Toast.error('请求上传文件名称接口失败')
+        }
+    }
     return <>
         <NavBar
             mode="light"
@@ -101,6 +117,10 @@ const UploadWork = () => {
                             <span style={{ fontSize: '14px', fontWeight: 'bold' }}>命名方式：</span>
                             <span style={{ color: 'red' }}>{fileName.format}</span>
                         </div>
+                        {fileName.detail ? <div>
+                            <span style={{ fontSize: '14px', fontWeight: 'bold' }}>详细说明：</span>
+                            <span style={{ color: 'red' }}>{fileName.detail}</span>
+                        </div> : ''}
                     </div>
                 </Card.Body>
             </Card>
@@ -113,6 +133,10 @@ const UploadWork = () => {
                     title="上传内容"
                 />
                 <Card.Body>
+                    <div style={{ marginBottom: '1rem' }}>
+                        {uploadName ? <div>你已经上传了文件<span style={{ color: '#00a4ff' }}>{uploadName}</span>文件</div> :
+                            <div>你还没有上传任何文件，点击上传按钮进行上传</div>}
+                    </div>
                     <Upload  {...props}>
                         <Button>
                             上传

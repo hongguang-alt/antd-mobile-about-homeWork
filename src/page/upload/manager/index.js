@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { NavBar, Card, WingBlank, WhiteSpace, Toast, List, InputItem, Button, Modal } from 'antd-mobile'
-import { noHomeWorkListName, changeFileFormat, detailList, deleteAll, deteleOne } from '../../../axios/api'
+import { noHomeWorkListName, changeFileFormat, detailList, deleteAll, deteleOne, changefileName } from '../../../axios/api'
 import { createForm } from 'rc-form';
+import { URL } from '../../../config'
+const prompt = Modal.prompt;
 
 const styles = {
     errInfo: {
@@ -18,8 +20,7 @@ const styles = {
     noFileName: {
         width: '2rem',
         textAlign: 'center',
-        marginTop: '.5rem',
-        color: 'red'
+        marginTop: '.5rem'
     },
     titleTop: {
         position: 'fixed',
@@ -43,14 +44,15 @@ const Manager = (props) => {
         getDetailList()
     }, [])
 
-    const getAllFile = async () => {
+    const getAllFile = async (name) => {
+        if (!name) return Toast.fail('请输入要打包的名称')
         const token = window.localStorage.getItem('token')
-        window.location.assign('http://hongguang.club:3001/file/downloadall/' + token)
+        window.location.assign(URL + '/file/downloadall/' + name + '/' + token)
     }
 
     const getOneFile = async (name) => {
         const token = window.localStorage.getItem('token')
-        window.location.assign('http://hongguang.club:3001/file/download/' + name + '/' + token)
+        window.location.assign(URL + '/file/download/' + name + '/' + token)
     }
 
     const toDeleteData = (fileName) => {
@@ -158,6 +160,18 @@ const Manager = (props) => {
 
         }
     }
+
+    const onCreate = async (value) => {
+        if (!value.name) return Toast.fail('请输入名称')
+        try {
+            let { status, msg } = await changefileName(value)
+            if (status === '200') {
+                getDetailList()
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
     return <>
         <NavBar
             mode="light"
@@ -210,6 +224,10 @@ const Manager = (props) => {
                             })}
                             placeholder="请输入你的命名格式"
                         >命名格式</InputItem>
+                        <InputItem
+                            {...getFieldProps('detail', {})}
+                            placeholder="请输入你的具体描述"
+                        >详细说明</InputItem>
                     </List>
                     {
                         errorInfo ? <div style={styles.errInfo}>{errorInfo}</div> : null
@@ -233,7 +251,15 @@ const Manager = (props) => {
                 <Card.Header
                     title="作业列表"
                     extra={<div>
-                        <Button inline type="primary" size='small' style={{ marginRight: '.25rem' }} onClick={getAllFile}>全部导出</Button>
+                        <Button inline type="primary" size='small' style={{ marginRight: '.25rem' }} onClick={() => prompt(
+                            '打包名称',
+                            '输入名称包括后缀名，后缀一般为.zip',
+                            [
+                                { text: '取消' },
+                                { text: '提交', onPress: (name) => { getAllFile(name) } }
+                            ],
+                            'text',
+                        )}>全部导出</Button>
                         <Button inline type="primary" size='small' style={{ marginRight: '.25rem' }} onClick={toDeleteAll}>清空数据</Button>
                     </div>}
                 />
@@ -242,6 +268,15 @@ const Manager = (props) => {
                         {dataSource.map(item => {
                             return <Item extra={<div style={{ fontSize: '.4rem' }} key={item.sid}>
                                 <a style={{ marginRight: '.5rem', color: "rgb(51, 163, 244)" }} onClick={() => toDeleteData(item.fileName)}>删除</a>
+                                <a style={{ marginRight: '.5rem', color: 'rgb(51, 163, 244)' }} onClick={() => prompt(
+                                    '重命名',
+                                    '输入名称包括后缀名',
+                                    [
+                                        { text: '取消' },
+                                        { text: '提交', onPress: (name) => { onCreate({ name, sid: item.sid }) } },
+                                    ],
+                                    'text',
+                                )}>编辑</a>
                                 <a style={{ marginRight: '.5rem', color: 'rgb(51, 163, 244)' }} onClick={() => getOneFile(item.fileName)}>导出</a>
                             </div>}>
                                 <div style={{ fontSize: '.4rem' }}>
